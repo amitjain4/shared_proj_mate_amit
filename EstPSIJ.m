@@ -32,7 +32,7 @@ end
 N = 1000;
 
 % para Fd: Freq of PRBS
-Fd = 10E9;
+Fd = 100E6;
 % define symbol functions
 
 syms t; %declare symbolic variables

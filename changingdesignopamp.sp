@@ -4,22 +4,28 @@
 .trans 0.001n 5000n
 .option accurate=1 method=gear
 .include 'UA741'
+$DC Parameter test Voltage
+vpu in 0 0
 $Square Wave
 $vpu in 0  pulse (0 2 0.5n 0.1n 0.1n 4.9n 10n)
 $PRBS Signal
-vpu in 0 LFSR (0 2 0.5n 0.5n 0.5n 100meg 1 [5,2] 0)
+$vpu in 0 LFSR (0 2 0.5n 0.5n 0.5n 100meg 1 [5,2] 0)
 
 $VDD SUPPLY
+$Sine and Square Wave
 vdd posrail 3 2.0
+$Sawtooth Wave
 $vdd posrail 3 1.2
+
 vss psrail 0 2.0
+
 $NOISE SOURCES
 $Sine Wave 
-vn 3 0 sin (0 0.1 433MEG)
+$vn 3 0 sin (0 0.04 433MEG)
 $Square Wave
-$vn 3 0 pulse(-0.1 0.1 0 0.5n 0.5n 4.5n 10n)
+vn 3 0 pulse(-0.1 0.1 0 0.5n 0.5n 4.5n 10n)
 $Sawtooth wave
-$vn 3 0 pulse(-0.1 0.1 0 2.85n 0 0 2.85n)
+$vn 3 0 pulse(-0.2 0.2 0 2.85n 0 0 2.85n)
 
 $Ideal Vsup @ 0.4V
 $vsup 2 0 0.4
@@ -63,11 +69,11 @@ R2 dn f 50
  $M4 Transistor
 mnm8 f B 0 0 nch w=72u l=250n
 
-C1 dn 0 0p
+C1 dn 0 1p
 R3 dn z 50
-C2 z 0 0p
+C2 z 0 1p
 R4 z dp 50
-CCM dp 0 0p
+CCM dp 0 1p
 
 $M1 Transistor
 mnm9 vsup B g g nch w=72u l=250n

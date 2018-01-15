@@ -79,7 +79,7 @@ for vn = 0.04:0.04:0.2
         fundamental_f = 350.8772e6;
         % para Q: Number Of the Fourier frenquencies
         Q = 50;
-        Method = 3;
+        Method = 1;
         slope = 2.32778e9;
     else 
         fprintf(string('Please enter valid wave type'))
