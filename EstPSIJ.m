@@ -1,4 +1,4 @@
-function result = EstPSIJ(ampl,wave)
+function [PSIJ,PSIJg,PSIJg_l] = EstPSIJ(ampl,wave,gain1,gain1_l)
 
 fprintf('Testing ');
 disp(wave)
@@ -14,7 +14,7 @@ if strcmp(wave,'Sine')
     Q = 1;
 elseif strcmp(wave,'Square')
     wave_info = strcat(ampl_string,'*square(2.*pi.*100e6.*t)');
-    fundamental_f = 100e6;
+    fundamental_f = 101e6;
     % para Q: Number Of the Fourier frenquencies
     Q = 50;
 elseif strcmp(wave,'Sawtooth')
@@ -60,31 +60,65 @@ Td = 1 / Fd;
 Jr = zeros(N, 1);
 
 %Calculate all Fourier Series coefficients
-[freq,coeff,~] = fourier_coeff(wave_info,0,1./fundamental_f,Q,1000,1,0,5);
+[freq,coeff,~] = fourier_coeff(wave_info,0,1./fundamental_f,Q,1000,3,0,5);
 for k = 1:N
     tmk = double(tm0 + (k - 1) * Td);
     JrkiArray = zeros(Q, 1);
+    JrkiArray_Gain = zeros(Q, 1);
+    JrkiArray_Gain_inductor = zeros(Q, 1);
+
     
     for i = 1:Q
         %Amplitude of the current Fourier frequency (sine wave component)
-        Fourier_amp = coeff(i+Q+1);
+        Fourier_amp = (coeff(i+Q+1));
         Vni = (Fourier_amp) * sin(2 * pi * freq(i+1) * tmk);
         ResFVal = (Transfer_f(freq(i+1),wave));
-        JrkiArray(i) = (Vni * ResFVal)/ alpha;
-    end
 
+        JrkiArray(i) = (Vni * abs(ResFVal))/ alpha;
+        JrkiArray_Gain(i) = (Vni * gain1(i))/ alpha;
+        JrkiArray_Gain_inductor(i) = (Vni * gain1_l(i))/ alpha;
+        
+        
+    end
+   
     Jrk = sum(JrkiArray);
+    Jrkg = sum(JrkiArray_Gain);
+    Jrkg_l = sum(JrkiArray_Gain_inductor);
+   
     JrkPhase = phase(Jrk);
     if JrkPhase <= 0
         Jr(k) = -abs(Jrk);
     else
         Jr(k) = abs(Jrk);
     end
+    
+    JrkPhase = phase(Jrkg);
+    if JrkPhase <= 0
+        Jrg(k) = -abs(Jrkg);
+    else
+        Jrg(k) = abs(Jrkg);
+    end
+    
+    JrkPhase = phase(Jrkg_l);
+    if JrkPhase <= 0
+        Jrg_l(k) = -abs(Jrkg_l);
+    else
+        Jrg_l(k) = abs(Jrk);
+    end
+    
 end
 
 Jmax = max(Jr);
 Jmin = min(Jr);
+
+Jmaxg = max(Jrg);
+Jming = min(Jrg);
+
+Jmaxg_l = max(Jrg_l);
+Jming_l = min(Jrg_l);
+
 PSIJ = Jmax - Jmin;
-result = PSIJ;
+PSIJg = Jmaxg - Jming;
+PSIJg_l = Jmaxg_l - Jming_l;
 
 end

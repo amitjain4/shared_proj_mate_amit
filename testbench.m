@@ -66,20 +66,20 @@ for vn = 0.04:0.04:0.2
         fundamental_f = 100e6;
         % para Q: Number Of the Fourier frenquencies
         Q = 50;
-        Method = 1;
+        Method = 3;
         slope = 2.12e9;
     elseif strcmp(wave,'Sawtooth')
         wave_info = strcat(vnstr,'*sawtooth(2.*pi.*350.8772e6.*t)');
         fundamental_f = 350.8772e6;
         % para Q: Number Of the Fourier frenquencies
         Q = 50;
-        Method = 1;
+        Method = 3;
         slope = 2.32778e9;
     else 
         fprintf(string('Please enter valid wave type'))
     end
 
-	[freq,coeff,APspec] = fourier_coeff(wave_info,0,1./fundamental_f,Q,1000,Method,1,5);
+	[freq,coeff,APspec] = fourier_coeff(wave_info,0,1./fundamental_f,Q,1000,Method,0,5);
     
 	Jr = 0;
     Jrn=0;
@@ -90,43 +90,53 @@ for vn = 0.04:0.04:0.2
     Jr1 = 0;
     Jr_l = 0;
     Jr1_l = 0;
-    
+
+% Caculate the slope, period and intersection
+% out1 = zeroes(
+% out1_l = zeroes(
     for i=1:Q
         vn0 = abs(coeff(Q+i+1));
         [Transfer_ff,x,Transfer_ff_l,x_l] = EvalTF(freq(i+1),vn0,Y,Ron_p,Cds_p,Cgd2,Cgs3,Cds2,Cds3,Ron3,ro2,Cgd3,Cgs2,gm2,C1,C2,Ccm);
         
         %Can't divide by 0 if coefficient vn0 = 0 as in square wave coeffs
+        
         if vn0 ~= 0
-            out1 = ((abs(x(5)-x(3)))/vn0);
-            out1_l = ((abs(x_l(5)-x_l(3)))/vn0);
+            out1(i) = ((abs(x(5)-x(3)))/vn0);
+            out1_l(i) = ((abs(x_l(5)-x_l(3)))/vn0);
         else 
-            out1 = 0;
-            out1_l = 0;
+            out1(i) = 0;
+            out1_l(i) = 0;
         end
         
         out2 = abs(Transfer_ff);
         out2_l = abs(Transfer_ff_l);
         
+        %CLOSED LOOP HYPOTHETICAL MAX (caused from delay/distortion)
         Jr = Jr + ((out2 * vn0)/ (slope) - (out2 * -vn0)/ (slope));
+        Jr_l = Jr_l + ((out2_l * vn0)/ (slope) - (out2_l * -vn0)/ (slope));
         %Jrp = Jrp + ((out2 * vn0)/ (slope));
         %Jrn = Jrn + (out2 * -vn0)/ (slope);
-        Jr1 = Jr1 + ((out1 * vn0)/ (slope) - (out1 * -vn0)/ (slope));
+        
+        %MATRICES
+        %Jr1 = Jr1 + ((out1 * vni)/ (slope) - (out1 * -vn0)/ (slope));
+        %Jr1_l = Jr1_l + ((out1_l * vni)/ (slope) - (out1_l * -vn0)/ (slope));
         %Jrp1 = Jrp1 + ((out1 * vn0)/ (slope));
         %Jrn1 = Jrn1 + (out1 * -vn0)/ (slope);
-        Jr_l = Jr_l + ((out2_l * vn0)/ (slope) - (out2_l * -vn0)/ (slope));
-        Jr1_l = Jr1_l + ((out1_l * vn0)/ (slope) - (out1_l * -vn0)/ (slope));
+        
+        
+        
     end
-    
+
 %     Jr = Jrp - Jrn;
 %     Jr1 = Jrp1 - Jrn1;
     outa(n) = Jr;
-    outb(n) = Jr1;
+    %outb(n) = Jr1;
     outd(n) = Jr_l;
-    oute(n) = Jr1_l;
+   % oute(n) = Jr1_l;
     vinpk(n) = vn;
     
     %Algorithm plotting
-    outc(n) = EstPSIJ(vn,wave);
+    [outc(n),outb(n),oute(n)] = EstPSIJ(vn,wave,out1,out1_l);
 	n = n + 1;
 end
 
