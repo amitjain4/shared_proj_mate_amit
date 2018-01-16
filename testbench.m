@@ -6,50 +6,44 @@ n = 1;
 %Parasitic Values for waverforms tested at different DC biasing levels
 if strcmp(wave,'Sine')
     Y=1/50;
-    f=433e6;
-    omega=2*pi*f;
-    Ron_p = 222.3057;
-    Cds_p = 39.6704e-15;
+    Ron_p = 44.95;
+    Cds_p = 196.8061e-15;
     Cgd2 = 81.2943e-15;
     Cgs3 = 85.9043e-15;
-    Cds2 = 186.311e-15;
-    Cds3 = 187.5754e-15;
-    Ron3 = 14.4434;
+    Cds2 = 186.3112e-15;
+    Cds3 = 187.5755e-15;
+    Ron3 = 14.4433;
     ro2 = 834.5852;
     Cgd3 = 82.1576e-15;
     Cgs2 = 85.3737e-15;
     gm2 = 1.1982e-3;
-elseif strcmp(wave,'Sawtooth') %18.7ps on rising edge in hspice
-    Y=1/50;
-    f=350.8772e6;
-    omega=2*pi*f;
-    Ron_p = 1129.78;
-    Cds_p = 29.4827e-15;
-    Cgd2 = 60.0431e-15;
-    Cgs3 = 84.6309e-15;
-    Cds2 = 159.2961e-15;
-    Cds3 = 182.2445e-15;
-    Ron3 = 32.159;
-    gm2 = 5.6186e-3;
+elseif strcmp(wave,'Sawtooth') %18.6ps on rising edge in hspice
+    Y = 1/50;
+    Ron_p = 101.02;
+    Cds_p = 195.4424e-15;
+    Cgd2 = 42.8858e-15;
+    Cgs3 = 84.5710e-15;
+    Cds2 = 138.8406e-15;
+    Cds3 = 180.6806e-15;
+    Ron3 = 39.00;
+    gm2 = 6.9541e-3;
     ro2 = 1/gm2;
-    Cgd3 = 78.1192e-15;
-    Cgs2 = 60.0431e-15;
+    Cgd3 = 76.7787e-15;
+    Cgs2 = 96.9478e-15;
 elseif strcmp(wave,'Square')
     Y=1/50;
-    f=100e6;
-    omega=2*pi*f;
-    Ron_p = 362.6849;
-    Cds_p = 29.8034e-15;
-    Cgd2 = 80.9477e-15;
-    Cgs3 = 85.7579e-15;
-    Cds2 = 185.8152e-15;
-    Cds3 = 187.3279e-15;
-    Ron3 = 15.1751;
-    gm2 = 1.3689e-3;
+    Ron_p = 46.7053;
+    Cds_p = 196.744e-15;
+    Cgd2 = 80.9480e-15;
+    Cds2 = 185.8157e-15;
+    gm2 = 1.3867e-3;
     ro2 = 1/gm2;
-    Cgd3 = 81.9803e-15;
-    Cgs2 = 85.2328e-15;
-end 
+    Cgs2 = 85.2329e-15;
+    Cgs3 = 85.7850e-15;
+    Cds3 = 187.328e-15;
+    Ron3 = 15.16;
+    Cgd3 = 81.9805e-15;
+end
 
     % External caps
     C1 = 1e-12;
@@ -72,7 +66,7 @@ for vn = 0.04:0.04:0.2
         fundamental_f = 100e6;
         % para Q: Number Of the Fourier frenquencies
         Q = 50;
-        Method = 3;
+        Method = 1;
         slope = 2.12e9;
     elseif strcmp(wave,'Sawtooth')
         wave_info = strcat(vnstr,'*sawtooth(2.*pi.*350.8772e6.*t)');
@@ -86,7 +80,13 @@ for vn = 0.04:0.04:0.2
     end
 
 	[freq,coeff,APspec] = fourier_coeff(wave_info,0,1./fundamental_f,Q,1000,Method,1,5);
+    
 	Jr = 0;
+    Jrn=0;
+    Jrp=0;
+    Jrn1=0;
+    Jrp1=0;
+    Jr1p=0;
     Jr1 = 0;
     Jr_l = 0;
     Jr1_l = 0;
@@ -108,12 +108,17 @@ for vn = 0.04:0.04:0.2
         out2_l = abs(Transfer_ff_l);
         
         Jr = Jr + ((out2 * vn0)/ (slope) - (out2 * -vn0)/ (slope));
+        %Jrp = Jrp + ((out2 * vn0)/ (slope));
+        %Jrn = Jrn + (out2 * -vn0)/ (slope);
         Jr1 = Jr1 + ((out1 * vn0)/ (slope) - (out1 * -vn0)/ (slope));
-        
+        %Jrp1 = Jrp1 + ((out1 * vn0)/ (slope));
+        %Jrn1 = Jrn1 + (out1 * -vn0)/ (slope);
         Jr_l = Jr_l + ((out2_l * vn0)/ (slope) - (out2_l * -vn0)/ (slope));
         Jr1_l = Jr1_l + ((out1_l * vn0)/ (slope) - (out1_l * -vn0)/ (slope));
     end
     
+%     Jr = Jrp - Jrn;
+%     Jr1 = Jrp1 - Jrn1;
     outa(n) = Jr;
     outb(n) = Jr1;
     outd(n) = Jr_l;
@@ -169,7 +174,7 @@ function [Transfer_fresult,x,Transfer_fresult_l,x_l ] = EvalTF(freq,vnx,Y,Ron_p,
 	Y3 = (1+1j*omega*Ron3*Cds3)/Ron3;
 	Y4 = (1+1j*omega*ro2*Cds2)/ro2;
 	
-    L = 50e-9;
+    L = 10e-9;
     Yl = 1/(1j*omega*L);
 	Ya = 1j*omega*Cgd3;
 	Yc = 1j*omega*Cgs2;

@@ -60,15 +60,14 @@ Td = 1 / Fd;
 Jr = zeros(N, 1);
 
 %Calculate all Fourier Series coefficients
-[freq,coeff,~] = fourier_coeff(wave_info,0,1./fundamental_f,Q,1000,3,0,5);
-
+[freq,coeff,~] = fourier_coeff(wave_info,0,1./fundamental_f,Q,1000,1,0,5);
 for k = 1:N
     tmk = double(tm0 + (k - 1) * Td);
     JrkiArray = zeros(Q, 1);
     
     for i = 1:Q
         %Amplitude of the current Fourier frequency (sine wave component)
-        Fourier_amp = coeff(1+i+Q);
+        Fourier_amp = coeff(i+Q+1);
         Vni = (Fourier_amp) * sin(2 * pi * freq(i+1) * tmk);
         ResFVal = (Transfer_f(freq(i+1),wave));
         JrkiArray(i) = (Vni * ResFVal)/ alpha;
