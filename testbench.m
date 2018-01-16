@@ -49,10 +49,11 @@ end
     C1 = 1e-12;
     C2 = 1e-12;
     Ccm = 1e-12;
-% Transfer Function Calculations
 
+%We will now step through different noise voltage levels and test response
 for vn = 0.04:0.04:0.2
 
+    %Set preliminary data for computing the response 
     vnstr = num2str(vn);
     if strcmp(wave,'Sine')
         wave_info = strcat(vnstr,'*sin(2.*pi.*433e6.*t)');
@@ -76,11 +77,14 @@ for vn = 0.04:0.04:0.2
         Method = 3;
         slope = 2.32778e9;
     else 
-        fprintf(string('Please enter valid wave type'))
+        fprintf("Please enter valid wave type -- (Sine, Square, Sawtooth)")
+        return
     end
 
+    %Compute fourier coefficients based on fundamental freq and the wave
 	[freq,coeff,APspec] = fourier_coeff(wave_info,0,1./fundamental_f,Q,1000,Method,0,5);
     
+    %Initialize empty jitter variables
 	Jr = 0;
     Jrn=0;
     Jrp=0;
@@ -91,16 +95,17 @@ for vn = 0.04:0.04:0.2
     Jr_l = 0;
     Jr1_l = 0;
 
-% Caculate the slope, period and intersection
-% out1 = zeroes(
-% out1_l = zeroes(
+%For each fourier coefficient we will analyze the gain of the transfer
+%function
     for i=1:Q
+        
         vn0 = abs(coeff(Q+i+1));
+        %Evaluate transfer function at the ith freq component of the noise
         [Transfer_ff,x,Transfer_ff_l,x_l] = EvalTF(freq(i+1),vn0,Y,Ron_p,Cds_p,Cgd2,Cgs3,Cds2,Cds3,Ron3,ro2,Cgd3,Cgs2,gm2,C1,C2,Ccm);
         
         %Can't divide by 0 if coefficient vn0 = 0 as in square wave coeffs
-        
         if vn0 ~= 0
+            %compute differential gain from return vector of stamp
             out1(i) = ((abs(x(5)-x(3)))/vn0);
             out1_l(i) = ((abs(x_l(5)-x_l(3)))/vn0);
         else 
@@ -111,13 +116,15 @@ for vn = 0.04:0.04:0.2
         out2 = abs(Transfer_ff);
         out2_l = abs(Transfer_ff_l);
         
-        %CLOSED LOOP HYPOTHETICAL MAX (caused from delay/distortion)
+        %CLOSED LOOP HYPOTHETICAL MAX (caused from delay/distortion) --
+        %this method is al
         Jr = Jr + ((out2 * vn0)/ (slope) - (out2 * -vn0)/ (slope));
         Jr_l = Jr_l + ((out2_l * vn0)/ (slope) - (out2_l * -vn0)/ (slope));
         %Jrp = Jrp + ((out2 * vn0)/ (slope));
         %Jrn = Jrn + (out2 * -vn0)/ (slope);
         
-        %MATRICES
+        %MATRICES -- THIS METHOD IS HYPOTEHTICAL MAX, because the peaks
+        %cannot align since components are in phase
         %Jr1 = Jr1 + ((out1 * vni)/ (slope) - (out1 * -vn0)/ (slope));
         %Jr1_l = Jr1_l + ((out1_l * vni)/ (slope) - (out1_l * -vn0)/ (slope));
         %Jrp1 = Jrp1 + ((out1 * vn0)/ (slope));
@@ -127,12 +134,12 @@ for vn = 0.04:0.04:0.2
         
     end
 
-%     Jr = Jrp - Jrn;
-%     Jr1 = Jrp1 - Jrn1;
+    %Jr = Jrp - Jrn;
+    %Jr1 = Jrp1 - Jrn1;
     outa(n) = Jr;
     %outb(n) = Jr1;
     outd(n) = Jr_l;
-   % oute(n) = Jr1_l;
+    %oute(n) = Jr1_l;
     vinpk(n) = vn;
     
     %Algorithm plotting
@@ -144,7 +151,7 @@ end
 subplot(3,1,1);
 plot(vinpk,outa(1:5),strcat('blue','-x'),vinpk,outd(1:5),strcat('red','-x'))
 legend('transfer function','TF with L','Location','northeast')
-title('closed loop Maximum theoretical jitter'); xlabel('Vn (pk-pk) mV'); ylabel('PSIJ (pk) SEC')   
+title('closed loop Maximum HYPOTHETICAL jitter '); xlabel('Vn (pk-pk) mV'); ylabel('PSIJ (pk) SEC')   
 grid on
 
 %Closed loop

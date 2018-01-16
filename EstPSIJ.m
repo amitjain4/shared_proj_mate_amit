@@ -62,18 +62,24 @@ Jr = zeros(N, 1);
 %Calculate all Fourier Series coefficients
 [freq,coeff,~] = fourier_coeff(wave_info,0,1./fundamental_f,Q,1000,3,0,5);
 for k = 1:N
+    %next possible time of the rising edge of PRBS
     tmk = double(tm0 + (k - 1) * Td);
+    
     JrkiArray = zeros(Q, 1);
     JrkiArray_Gain = zeros(Q, 1);
     JrkiArray_Gain_inductor = zeros(Q, 1);
 
-    
+    %calculate the jitter from each individual frequency component and sum
+    %to determine the total jitter 
     for i = 1:Q
         %Amplitude of the current Fourier frequency (sine wave component)
         Fourier_amp = (coeff(i+Q+1));
+        %Compute the amplitude of the freq component at time tmk
         Vni = (Fourier_amp) * sin(2 * pi * freq(i+1) * tmk);
+        %Evaluate C.L T.F at freq of interest
         ResFVal = (Transfer_f(freq(i+1),wave));
 
+        %Jitter calculation - divided noise output response by rising slope
         JrkiArray(i) = (Vni * abs(ResFVal))/ alpha;
         JrkiArray_Gain(i) = (Vni * gain1(i))/ alpha;
         JrkiArray_Gain_inductor(i) = (Vni * gain1_l(i))/ alpha;
@@ -81,10 +87,12 @@ for k = 1:N
         
     end
    
+    %add jitter for all freq component
     Jrk = sum(JrkiArray);
     Jrkg = sum(JrkiArray_Gain);
     Jrkg_l = sum(JrkiArray_Gain_inductor);
    
+    %determine if the deviation is before/after rising edge
     JrkPhase = phase(Jrk);
     if JrkPhase <= 0
         Jr(k) = -abs(Jrk);
@@ -108,6 +116,8 @@ for k = 1:N
     
 end
 
+
+%determine the peak-peak jitter
 Jmax = max(Jr);
 Jmin = min(Jr);
 
