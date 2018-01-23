@@ -38,14 +38,14 @@ Fd = 100E6;
 syms t; %declare symbolic variables
 
 if strcmp(wave,'Sine')
-    vr = ((41e-3)-(-37.6e-3))/((932e-12)-(884e-12))* t - 1.48515;
-    %slope = 1.6375e9
+    vr = (99.2e-3)/(13.8e-12)* t - 362.296;
+    %slope = 7.18841e9
 elseif strcmp(wave,'Sawtooth') %18.6ps on rising edge in hspice
-    vr = ((39.2e-3)-(-44.6e-3))/((853e-12)-(817e-12))* t - 1.9464;
-    %slope = 2.32778e9
+    vr = (31.5e-3/23.5e-12)* t - 67.557;
+    %slope = 1.34043e9
 elseif strcmp(wave,'Square')
-    vr = ((40.7e-3)-(-44.1e-3))/((863e-12)-(823e-12))* t - 1.78886;
-    %slope = 2.12e9
+    vr = (99.2e-3)/(13.8e-12)* t - 362.296;
+    %slope = 7.18841e9
 end
 
 % Caculate the slope, period and intersection

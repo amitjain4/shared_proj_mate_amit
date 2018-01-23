@@ -61,21 +61,21 @@ for vn = 0.04:0.04:0.2
         % para Q: Number Of the Fourier frenquencies
         Q = 1;
         Method = 2;
-        slope = 1.6375e9;
+        slope = 7.18841e9;
     elseif strcmp(wave,'Square')
         wave_info = strcat(vnstr,'*square(2.*pi.*100e6.*t)');
         fundamental_f = 100e6;
         % para Q: Number Of the Fourier frenquencies
         Q = 50;
         Method = 3;
-        slope = 2.12e9;
+        slope = 1.34043e9;
     elseif strcmp(wave,'Sawtooth')
         wave_info = strcat(vnstr,'*sawtooth(2.*pi.*350.8772e6.*t)');
         fundamental_f = 350.8772e6;
         % para Q: Number Of the Fourier frenquencies
         Q = 50;
         Method = 3;
-        slope = 2.32778e9;
+        slope = 7.18841e9;
     else 
         fprintf("Please enter valid wave type -- (Sine, Square, Sawtooth)")
         return

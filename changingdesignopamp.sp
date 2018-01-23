@@ -5,27 +5,29 @@
 .option accurate=1 method=gear
 .include 'UA741'
 $DC Parameter test Voltage
-vpu in 0 0
+$vpu in 0 0
 $Square Wave
 $vpu in 0  pulse (0 2 0.5n 0.1n 0.1n 4.9n 10n)
 $PRBS Signal
-$vpu in 0 LFSR (0 2 0.5n 0.5n 0.5n 100meg 1 [5,2] 0)
+vpu in 0 LFSR (0 2 0.5n 0.5n 0.5n 100meg 1 [5,2] 0)
 
 $VDD SUPPLY
 $Sine and Square Wave
-vdd posrail 3 2.0
+$vdd posrail 3 2.0
+$vss psrail 0 2.0
+$voa opsup 3 2.0
 $Sawtooth Wave
-$vdd posrail 3 1.2
-
-vss psrail 0 2.0
+vdd posrail 3 1.2
+vss psrail 0 1.2
+voa opsup 3 2
 
 $NOISE SOURCES
 $Sine Wave 
-$vn 3 0 sin (0 0.04 433MEG)
+$vn 3 0 sin (0 0.06 433MEG)
 $Square Wave
-vn 3 0 pulse(-0.1 0.1 0 0.5n 0.5n 4.5n 10n)
+$vn 3 0 pulse(-0.1 0.1 0 0.5n 0.5n 4.5n 10n)
 $Sawtooth wave
-$vn 3 0 pulse(-0.2 0.2 0 2.85n 0 0 2.85n)
+vn 3 0 pulse(-0.0 0.0 0 2.85n 0 0 2.85n)
 
 $Ideal Vsup @ 0.4V
 $vsup 2 0 0.4
@@ -33,10 +35,11 @@ $vsup 2 0 0.4
 $OP AMP
 XUA741 Vpos vsup rail nrail VO1 UA741
 VNegr nrail 0 -12
-Vbias Vpos 0 0.4 
+Vbias Vpos 0 2
 VDD1 rail 0 12
 
-mnm11 posrail VO1 vsup vsup nch w=72u l=250n
+$ M0 Transistor- from opsup now instead of posrail
+mnm11 opsup VO1 vsup vsup nch w=72u l=250n
 C3 vsup 0 180p
 
 $ OP467 SPICE Macro-model
