@@ -12,7 +12,7 @@ if strcmp(wave,'Sine')
     Cds2 = 94.9907e-15;
     Cgs2 = 104.4758e-15;
     gm2 = 18.3618e-3;
-    ro2 = 1/gm2;
+    ro2 = 174;
     Ron3 = 15.107;
     Cgs3 = 86.9028e-15;
     Cds3 = 183.7823e-15;
@@ -69,6 +69,8 @@ for vn = 0.04:0.04:0.2
         Q = 50;
         Method = 3;
         slope = 1.34043e9;
+        actualdataSquare = [2.64e-12,5.11e-12,7.4e-12,9.47e-12,11.9e-12];
+        actualdata = actualdataSquare;
     elseif strcmp(wave,'Sawtooth')
         wave_info = strcat(vnstr,'*sawtooth(2.*pi.*350.8772e6.*t)');
         fundamental_f = 350.8772e6;
@@ -147,6 +149,10 @@ for vn = 0.04:0.04:0.2
 	n = n + 1;
 end
 
+%vinpk=vinpk*2;
+
+actualdataSquare = [2.64e-12,5.11e-12,7.4e-12,9.47e-12,11.9e-12];
+
 %plot(vinpk,outa(1:5),strcat('red','-x'), vinpk,outb(1:5),strcat('blue','-o'), vinpk,outc(1:5),strcat('green','-x'))
 subplot(3,1,1);
 plot(vinpk,outa(1:5),strcat('blue','-x'),vinpk,outd(1:5),strcat('red','-x'))
@@ -156,17 +162,17 @@ grid on
 
 %Closed loop
 subplot(3,1,2);
-plot(vinpk,outc(1:5),strcat('green','-o'))
-legend('transfer function','Location','northeast')
+plot(vinpk,outc(1:5),strcat('green','-o'),vinpk,actualdata(1:5),strcat('red','-o'));
+legend('transfer function','actual Hspice Data','Location','northeast')
 title('Closed loop form solutions'); xlabel('Vn (pk-pk) mV'); ylabel('PSIJ (pk) SEC')
 grid on
 
 
 %Matrices
 subplot(3,1,3)
-plot(vinpk,outb(1:5),strcat('blue','-o'),vinpk,oute(1:5),strcat('red','-o'))
+plot(vinpk,outb(1:5),strcat('blue','-o'),vinpk,oute(1:5),strcat('red','-o'),vinpk,actualdata(1:5),strcat('green','-o'))
 title('computation using matrices -- analytical solution)'); xlabel('Vn (pk-pk) mV'); ylabel('PSIJ (pk) SEC')
-legend('nodal matrices','matrices with L','Location','northeast')
+legend('nodal matrices','matrices with L','actual Hspice Data','Location','northeast')
 grid on
 
 % subplot(3,1,1);
